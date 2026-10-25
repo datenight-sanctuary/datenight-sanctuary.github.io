@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A date to remember 💕 · Date Night Sanctuary</title>
+<meta property="og:title" content="A date to remember 💕">
+<meta property="og:description" content="Tap to add this date to your Date Night Sanctuary library.">
+<style>
+  :root { --card:#26263A; --card2:#31304A; --cream:#FDFBD4; --lav:#C1BFFF; --orchid:#CF6DFC; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+         background:linear-gradient(#26263A,#1C1C28); color:var(--cream);
+         font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; padding:16px; }
+  .card { width:100%; max-width:420px; background:var(--card); border:1.5px solid rgba(193,191,255,.3);
+          border-radius:24px; padding:28px 22px; text-align:center; }
+  .heart { font-size:44px; }
+  h1 { font-size:15px; font-weight:500; color:var(--lav); margin:10px 0 6px; letter-spacing:.5px; }
+  .name { font-size:24px; font-weight:700; color:var(--orchid); margin:0 0 4px; }
+  .when { color:var(--lav); font-size:14px; margin:0 0 22px; }
+  a.btn { display:block; background:var(--orchid); color:#fff; text-decoration:none; font-weight:700;
+          padding:15px; border-radius:14px; font-size:16px; }
+  .small { margin-top:18px; font-size:13px; color:rgba(193,191,255,.75); line-height:1.5; }
+  .small a { color:var(--lav); }
+  .code { margin:8px 0 0; background:var(--card2); border-radius:10px; padding:10px; font-family:monospace;
+          font-size:11px; color:var(--cream); word-break:break-all; }
+</style>
+</head>
+<body>
+  <div class="card">
+    <div class="heart">💌</div>
+    <h1>A date to remember</h1>
+    <p class="name" id="name">Your date night</p>
+    <p class="when" id="when"></p>
+    <a class="btn" id="open" href="#">Add to my Date Library 💕</a>
+    <p class="small">Don't have the app yet?
+      <a id="store" href="#">Get Date Night Sanctuary</a>,<br>then paste this code in Settings → Accept Partner's Date:</p>
+    <div class="code" id="code"></div>
+  </div>
+<script>
+  var PKG = 'com.shanguaih.datenightsanctuary';
+  var STORE = 'https://play.google.com/store/apps/details?id=' + PKG;
+  var code = new URLSearchParams(location.search).get('code') || '';
+  document.getElementById('code').textContent = code;
+  document.getElementById('store').href = STORE;
+
+  // Read the activity name and date from the code to show a preview
+  try {
+    var b64 = code.slice(3).replace(/-/g, '+').replace(/_/g, '/');
+    while (b64.length % 4) b64 += '=';
+    var bytes = Uint8Array.from(atob(b64), function (c) { return c.charCodeAt(0); });
+    var data = JSON.parse(new TextDecoder().decode(bytes));
+    if (data.a) document.getElementById('name').textContent = data.a;
+    if (data.d) document.getElementById('when').textContent =
+      new Date(data.d * 1000).toLocaleDateString(undefined, { day: 'numeric', month: 'long', year: 'numeric' });
+  } catch (e) {}
+
+  var q = 'code=' + encodeURIComponent(code);
+  var isAndroid = /android/i.test(navigator.userAgent);
+  var appUrl = isAndroid
+    ? 'intent://date?' + q + '#Intent;scheme=datenightsanctuary;package=' + PKG +
+      ';S.browser_fallback_url=' + encodeURIComponent(STORE) + ';end'
+    : 'datenightsanctuary://date?' + q;
+  document.getElementById('open').href = appUrl;
+
+  if (code) setTimeout(function () { window.location.href = appUrl; }, 300);
+</script>
+</body>
+</html>
